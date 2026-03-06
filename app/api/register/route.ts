@@ -14,18 +14,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    // Track sign_up event
+    // Track sign_up event (non-blocking)
     if (data.user) {
-      const store = await cookies();
-      const clickId = store.get("trac_click_id")?.value;
+      try {
+        const store = await cookies();
+        const clickId = store.get("trac_click_id")?.value;
 
-      const trac = new Traaaction({ apiKey: process.env.TRAAACTION_API_KEY! });
-      await trac.track.lead({
-        clickId,
-        customerId: data.user.id,
-        eventName: "sign_up",
-        customerEmail: data.user.email,
-      });
+        console.log("Traaaction tracking:", {
+          hasApiKey: !!process.env.TRAAACTION_API_KEY,
+          apiKeyPrefix: process.env.TRAAACTION_API_KEY?.slice(0, 5),
+          clickId,
+          userId: data.user.id,
+        });
+
+        const trac = new Traaaction({ apiKey: process.env.TRAAACTION_API_KEY! });
+        await trac.track.lead({
+          clickId,
+          customerId: data.user.id,
+          eventName: "sign_up",
+          customerEmail: data.user.email,
+        });
+      } catch (tracError) {
+        console.error("Traaaction tracking failed:", tracError);
+      }
     }
 
     return NextResponse.json({ success: true });
