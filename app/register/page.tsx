@@ -1,5 +1,6 @@
 "use client";
 
+import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 
 export default function RegisterPage() {
@@ -14,15 +15,14 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    const supabase = createClient();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
     });
-    const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || "Erreur lors de l'inscription");
+    if (error) {
+      setError(error.message);
       setLoading(false);
       return;
     }
