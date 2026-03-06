@@ -46,6 +46,10 @@ export async function middleware(request: NextRequest) {
     getSubdomain(currentHost, "akyra.io");
 
   if (subdomain === "shop") {
+    // Don't rewrite /api routes — they live at root level
+    if (pathname.startsWith("/api")) {
+      return response;
+    }
     const url = request.nextUrl.clone();
     url.pathname = `/shop${pathname === "/" ? "" : pathname}`;
     return NextResponse.rewrite(url, { request, headers: response.headers });
