@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       const store = await cookies();
       const clickId = store.get("trac_click_id")?.value;
 
-      const trac = new Traaaction();
+      const trac = new Traaaction({ apiKey: process.env.TRAAACTION_API_KEY! });
       await trac.track.lead({
         clickId,
         customerId: data.user.id,
