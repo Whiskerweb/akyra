@@ -19,6 +19,9 @@ export default function RegisterPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: "https://app.akyra.io/auth/callback",
+      },
     });
 
     if (error) {
