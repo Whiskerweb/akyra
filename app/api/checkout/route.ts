@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
     const hasRecurring = prices.some((p) => p.recurring);
     const mode = hasRecurring ? "subscription" : "payment";
 
+    const tracClickId = request.cookies.get("trac_click_id")?.value ?? "";
+
     const session = await stripe.checkout.sessions.create({
       mode,
       payment_method_types: ["card"],
@@ -40,6 +42,10 @@ export async function POST(request: NextRequest) {
         price: priceId,
         quantity: 1,
       })),
+      metadata: {
+        tracCustomerExternalId: user.id,
+        tracClickId,
+      },
       success_url: "https://shop.akyra.io?success=true",
       cancel_url: "https://shop.akyra.io",
     });
