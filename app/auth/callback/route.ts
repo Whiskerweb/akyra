@@ -16,16 +16,23 @@ export async function GET(request: NextRequest) {
       const store = await cookies();
       const clickId = store.get("trac_click_id")?.value;
 
+      console.log("[AKYRA DEBUG]", {
+        clickId,
+        hasApiKey: !!process.env.TRAAACTION_API_KEY,
+        apiKeyPrefix: process.env.TRAAACTION_API_KEY?.slice(0, 8),
+      });
+
       try {
         const trac = new Traaaction();
-        await trac.track.lead({
+        const result = await trac.track.lead({
           clickId,
           customerId: data.user.id,
           eventName: "sign_up",
           customerEmail: data.user.email,
         });
-      } catch (e) {
-        console.error("[Traaaction] Lead tracking failed:", e);
+        console.log("[AKYRA DEBUG] SDK result:", result);
+      } catch (err) {
+        console.error("[AKYRA DEBUG] SDK error:", err);
       }
     }
   }
