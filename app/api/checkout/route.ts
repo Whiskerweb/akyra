@@ -1,8 +1,8 @@
 import { getStripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -13,17 +13,33 @@ export async function POST() {
       return NextResponse.json({ error: "Non authentifie" }, { status: 401 });
     }
 
+    const body = await request.json();
+    const priceIds: string[] = body.priceIds;
+
+    if (!priceIds || priceIds.length === 0) {
+      return NextResponse.json(
+        { error: "Aucun article selectionne" },
+        { status: 400 }
+      );
+    }
+
+    // Check if any price is recurring to determine checkout mode
     const stripe = getStripe();
+    const prices = await Promise.all(
+      priceIds.map((id) => stripe.prices.retrieve(id))
+    );
+
+    const hasRecurring = prices.some((p) => p.recurring);
+    const mode = hasRecurring ? "subscription" : "payment";
+
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode,
       payment_method_types: ["card"],
       customer_email: user.email,
-      line_items: [
-        {
-          price: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID!,
-          quantity: 1,
-        },
-      ],
+      line_items: priceIds.map((priceId) => ({
+        price: priceId,
+        quantity: 1,
+      })),
       success_url: "https://shop.akyra.io?success=true",
       cancel_url: "https://shop.akyra.io",
     });

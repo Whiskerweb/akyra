@@ -1,11 +1,47 @@
 import { createClient } from "@/lib/supabase/server";
-import { SubscribeButton } from "./subscribe-button";
+import { getStripe } from "@/lib/stripe";
+import { ShopClient } from "./shop-client";
+
+export const dynamic = "force-dynamic";
 
 export default async function ShopPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let products: {
+    id: string;
+    name: string;
+    description: string | null;
+    prices: { id: string; unit_amount: number | null; currency: string; recurring: string | null }[];
+  }[] = [];
+
+  try {
+    const stripe = getStripe();
+    const stripeProducts = await stripe.products.list({
+      active: true,
+      expand: ["data.default_price"],
+    });
+
+    const stripePrices = await stripe.prices.list({ active: true });
+
+    products = stripeProducts.data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      prices: stripePrices.data
+        .filter((p) => p.product === product.id)
+        .map((p) => ({
+          id: p.id,
+          unit_amount: p.unit_amount,
+          currency: p.currency,
+          recurring: p.recurring ? p.recurring.interval : null,
+        })),
+    }));
+  } catch (e) {
+    console.error("Failed to fetch Stripe products:", e);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -27,30 +63,14 @@ export default async function ShopPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-sm w-full">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Abonnement Pro
-          </h2>
-          <p className="text-gray-600 text-sm mb-4">
-            Acces complet a toutes les fonctionnalites de la plateforme.
-          </p>
-          <p className="text-3xl font-bold text-gray-900 mb-6">
-            9,99&euro;
-            <span className="text-sm font-normal text-gray-500">/mois</span>
-          </p>
+      <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-12">
+        <h1 className="text-2xl font-bold text-gray-900 mb-8">Boutique</h1>
 
-          {user ? (
-            <SubscribeButton />
-          ) : (
-            <a
-              href="https://app.akyra.io/login?redirect=https://shop.akyra.io"
-              className="block text-center w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition"
-            >
-              Se connecter pour payer
-            </a>
-          )}
-        </div>
+        {products.length === 0 ? (
+          <p className="text-gray-500">Aucun produit disponible.</p>
+        ) : (
+          <ShopClient products={products} isLoggedIn={!!user} />
+        )}
       </main>
 
       <footer className="border-t border-gray-200 px-6 py-4 text-center text-sm text-gray-500">
