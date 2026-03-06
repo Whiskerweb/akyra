@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { TracAnalytics } from "traaaction/react";
+import { TracProvider } from "./trac-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,10 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <TracAnalytics
-          apiHost="/_trac"
-          outboundDomains={["app.akyra.io", "shop.akyra.io"]}
-        />
+        <TracProvider />
       </body>
     </html>
   );
