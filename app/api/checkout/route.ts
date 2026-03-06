@@ -1,5 +1,6 @@
 import { getStripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -32,6 +33,9 @@ export async function POST(request: NextRequest) {
     const hasRecurring = prices.some((p) => p.recurring);
     const mode = hasRecurring ? "subscription" : "payment";
 
+    const store = await cookies();
+    const clickId = store.get("trac_click_id")?.value;
+
     const session = await stripe.checkout.sessions.create({
       mode,
       payment_method_types: ["card"],
@@ -40,6 +44,10 @@ export async function POST(request: NextRequest) {
         price: priceId,
         quantity: 1,
       })),
+      metadata: {
+        tracCustomerExternalId: user.id,
+        tracClickId: clickId || "",
+      },
       success_url: "https://shop.akyra.io?success=true",
       cancel_url: "https://shop.akyra.io",
     });

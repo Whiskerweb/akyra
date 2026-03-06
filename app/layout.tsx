@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { TracAnalytics } from "traaaction/react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,6 +30,10 @@ export default function RootLayout({
       >
         {children}
       </body>
+      <TracAnalytics
+        apiHost="/_trac"
+        outboundDomains={["app.akyra.io", "shop.akyra.io"]}
+      />
     </html>
   );
 }
