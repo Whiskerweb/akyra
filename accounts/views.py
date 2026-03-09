@@ -70,7 +70,7 @@ def register_view(request):
             payload = json.dumps({
                 "clickId": click_id or "",
                 "eventName": "sign_up",
-                "customerId": str(user.id),
+                "customerExternalId": str(user.id),
                 "customerEmail": user.email,
             }).encode("utf-8")
             req = urllib.request.Request(
