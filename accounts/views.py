@@ -10,7 +10,10 @@ from traaaction.django import get_click_id
 
 logger = logging.getLogger(__name__)
 
-trac = Traaaction(api_key=settings.TRAAACTION_API_KEY)
+trac = Traaaction(
+    api_key=settings.TRAAACTION_API_KEY,
+    public_key=settings.TRAAACTION_PUBLIC_KEY,
+)
 
 
 def redirect_to_login(request):

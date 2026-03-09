@@ -109,5 +109,6 @@ LOGIN_REDIRECT_URL = "/dashboard/"
 
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 TRAAACTION_API_KEY = env("TRAAACTION_API_KEY", default="")
+TRAAACTION_PUBLIC_KEY = env("TRAAACTION_PUBLIC_KEY", default="")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
