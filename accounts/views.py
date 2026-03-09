@@ -1,3 +1,5 @@
+import logging
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -6,7 +8,9 @@ from django.contrib import messages
 from traaaction import Traaaction
 from traaaction.django import get_click_id
 
-trac = Traaaction()
+logger = logging.getLogger(__name__)
+
+trac = Traaaction(api_key=settings.TRAAACTION_API_KEY)
 
 
 def redirect_to_login(request):
@@ -61,15 +65,21 @@ def register_view(request):
 
         # Traaaction lead tracking at signup (before login/redirect)
         click_id = get_click_id(request)
+        logger.error(f"[Traaaction] click_id from get_click_id: {click_id}")
+        logger.error(f"[Traaaction] cookies: {request.COOKIES}")
+        logger.error(f"[Traaaction] user.id: {user.id}, user.email: {user.email}")
         try:
-            trac.track.lead(
+            result = trac.track.lead(
                 click_id=click_id,
                 event_name="sign_up",
                 customer_id=str(user.id),
                 customer_email=user.email,
             )
+            logger.error(f"[Traaaction] Lead tracking result: {result}")
         except Exception as e:
-            print(f"[Traaaction] Lead tracking failed: {e}")
+            logger.error(f"[Traaaction] Lead tracking failed: {e}")
+            import traceback
+            logger.error(f"[Traaaction] Traceback: {traceback.format_exc()}")
 
         login(request, user)
         messages.success(request, "Compte cree avec succes.")
