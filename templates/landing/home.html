@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Akyra - Accueil{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-primary">Akyra</a>
+            <div class="space-x-4">
+                <a href="https://app.akyra.io/login/" class="text-gray-600 hover:text-primary">Connexion</a>
+                <a href="https://app.akyra.io/register/" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark">Inscription</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-5xl font-bold text-gray-900 mb-6">
+                Bienvenue sur <span class="text-primary">Akyra</span>
+            </h1>
+            <p class="text-xl text-gray-600 mb-8">
+                Votre plateforme SaaS tout-en-un.
+            </p>
+            <div class="space-x-4">
+                <a href="https://app.akyra.io/register/" class="bg-primary text-white px-8 py-3 rounded-lg text-lg hover:bg-primary-dark inline-block">
+                    Commencer
+                </a>
+                <a href="https://shop.akyra.io/" class="border border-primary text-primary px-8 py-3 rounded-lg text-lg hover:bg-primary hover:text-white inline-block">
+                    Boutique
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t py-6 text-center text-gray-500 text-sm">
+        &copy; 2026 Akyra. Tous droits réservés.
+    </footer>
+</div>
+{% endblock %}
