@@ -1,16 +1,19 @@
-import json
 import logging
-import urllib.request
-import urllib.error
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from traaaction import Traaaction
 from traaaction.django import get_click_id
 
 logger = logging.getLogger(__name__)
+
+trac = Traaaction(
+    api_key=settings.TRAAACTION_API_KEY,
+    public_key=settings.TRAAACTION_PUBLIC_KEY,
+)
 
 
 def redirect_to_login(request):
@@ -63,31 +66,15 @@ def register_view(request):
             password=password,
         )
 
-        # Traaaction lead tracking — synchronous call (daemon threads die on serverless)
+        # Traaaction lead tracking (v1.3.0 — auto-sync in serverless)
         click_id = get_click_id(request)
-        logger.error(f"[Traaaction] click_id: {click_id}, user: {user.id}/{user.email}")
         try:
-            payload = json.dumps({
-                "clickId": click_id or "",
-                "eventName": "sign_up",
-                "customerExternalId": str(user.id),
-                "customerEmail": user.email,
-            }).encode("utf-8")
-            req = urllib.request.Request(
-                "https://link.akyra.io/api/track/lead",
-                data=payload,
-                headers={
-                    "Content-Type": "application/json",
-                    "x-publishable-key": settings.TRAAACTION_PUBLIC_KEY,
-                },
-                method="POST",
+            trac.track.lead(
+                click_id=click_id,
+                event_name="sign_up",
+                customer_id=str(user.id),
+                customer_email=user.email,
             )
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                body = resp.read().decode()
-                logger.error(f"[Traaaction] Lead tracked OK: {resp.status} {body}")
-        except urllib.error.HTTPError as e:
-            body = e.read().decode()
-            logger.error(f"[Traaaction] Lead tracking HTTP {e.code}: {body}")
         except Exception as e:
             logger.error(f"[Traaaction] Lead tracking failed: {e}")
 
