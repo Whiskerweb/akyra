@@ -92,8 +92,8 @@ STORAGES = {
     },
 }
 
-SESSION_COOKIE_DOMAIN = ".akyra.io" if not DEBUG else None
-CSRF_COOKIE_DOMAIN = ".akyra.io" if not DEBUG else None
+SESSION_COOKIE_DOMAIN = ".akyra.io"
+CSRF_COOKIE_DOMAIN = ".akyra.io"
 CSRF_TRUSTED_ORIGINS = [
     "https://akyra.io",
     "https://www.akyra.io",
