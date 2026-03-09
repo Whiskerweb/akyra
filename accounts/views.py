@@ -68,6 +68,7 @@ def register_view(request):
         logger.error(f"[Traaaction] click_id from get_click_id: {click_id}")
         logger.error(f"[Traaaction] cookies: {request.COOKIES}")
         logger.error(f"[Traaaction] user.id: {user.id}, user.email: {user.email}")
+        logger.error(f"[Traaaction] API key used: {settings.TRAAACTION_API_KEY[:10]}...")
         try:
             result = trac.track.lead(
                 click_id=click_id,
