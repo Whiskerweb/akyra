@@ -1,19 +1,8 @@
-import logging
-from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from traaaction import Traaaction
-from traaaction.django import get_click_id
-
-logger = logging.getLogger(__name__)
-
-trac = Traaaction(
-    api_key=settings.TRAAACTION_API_KEY,
-    public_key=settings.TRAAACTION_PUBLIC_KEY,
-)
 
 
 def redirect_to_login(request):
@@ -65,19 +54,6 @@ def register_view(request):
             email=email,
             password=password,
         )
-
-        # Traaaction lead tracking (v1.3.0 — auto-sync in serverless)
-        click_id = get_click_id(request)
-        try:
-            trac.track.lead(
-                click_id=click_id,
-                event_name="sign_up",
-                customer_id=str(user.id),
-                customer_email=user.email,
-            )
-        except Exception as e:
-            logger.error(f"[Traaaction] Lead tracking failed: {e}")
-
         login(request, user)
         messages.success(request, "Compte cree avec succes.")
         return redirect("dashboard")
