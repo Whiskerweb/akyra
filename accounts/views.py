@@ -3,6 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from traaaction import Traaaction
+from traaaction.django import get_click_id
+
+trac = Traaaction()
 
 
 def redirect_to_login(request):
@@ -54,6 +58,20 @@ def register_view(request):
             email=email,
             password=password,
         )
+
+        # Traaaction lead tracking
+        click_id = get_click_id(request)
+        try:
+            trac.track.lead(
+                click_id=click_id,
+                event_name='sign_up',
+                customer_id=str(user.id),
+                customer_email=user.email,
+                sync=True,
+            )
+        except Exception as e:
+            print(f"[Traaaction] Lead tracking failed: {e}")
+
         login(request, user)
         messages.success(request, "Compte cree avec succes.")
         return redirect("dashboard")
