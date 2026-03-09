@@ -1,12 +1,8 @@
 {
     "builds": [
         {
-            "src": "akyra/wsgi.py",
+            "src": "api/index.py",
             "use": "@vercel/python"
-        },
-        {
-            "src": "static/**",
-            "use": "@vercel/static"
         }
     ],
     "routes": [
@@ -16,7 +12,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "akyra/wsgi.py"
+            "dest": "api/index.py"
         }
     ]
 }
