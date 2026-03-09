@@ -15,6 +15,7 @@ ALLOWED_HOSTS = [
     "www.akyra.io",
     "app.akyra.io",
     "shop.akyra.io",
+    ".vercel.app",
     "localhost",
     "127.0.0.1",
 ]
@@ -98,7 +99,10 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.akyra.io",
     "https://app.akyra.io",
     "https://shop.akyra.io",
+    "https://*.vercel.app",
 ]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
